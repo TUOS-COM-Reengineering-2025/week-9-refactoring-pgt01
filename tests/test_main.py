@@ -87,5 +87,49 @@ class TestCustomerManager(unittest.TestCase):
         fee_fragile = calculate_shipping_fee_for_fragile_items(purchases)
         self.assertEqual(fee_fragile, 25)
 
+    def test_generate_report_comprehensive(self):
+        cm = CustomerManager()
+        # Customer with no discount (total < 300)
+        cm.add_customer("Alice", [{'price': 50}, {'price': 75}])
+
+        # Customer with potential future discount (300 < total < 500)
+        cm.add_customer("Charlie", [{'price': 350}])
+
+        # Customer eligible for discount (total > 500)
+        cm.add_customer("David", [{'price': 520}])
+
+        # Customer eligible for discount and Priority (800 < total < 1000)
+        cm.add_customer("Eve", [{'price': 850}])
+
+        # VIP customer (total > 1000)
+        cm.add_customer("Frank", [{'price': 1200}])
+
+        # Priority customer (total > 1000)
+        cm.add_customer("Jules", [{'price': 700}])
+
+        # Capture printed output
+        captured = io.StringIO()
+        with contextlib.redirect_stdout(captured):
+            cm.generate_report()
+
+        output = captured.getvalue()
+
+        # Check each customer's status in the report
+        self.assertIn("Alice", output)
+        self.assertIn("No discount", output)
+
+        self.assertIn("Charlie", output)
+        self.assertIn("Potential future discount customer", output)
+
+        self.assertIn("David", output)
+        self.assertIn("Eligible for discount", output)
+
+        self.assertIn("Eve", output)
+        self.assertIn("Eligible for discount", output)
+
+        self.assertIn("Frank", output)
+        self.assertIn("Eligible for discount", output)
+        self.assertIn("VIP Customer!", output)
+
 if __name__ == "__main__":
     unittest.main()
