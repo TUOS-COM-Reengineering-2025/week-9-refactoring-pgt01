@@ -28,6 +28,16 @@ class TestCustomerManager(unittest.TestCase):
             cm.customers
         )
 
+    def test_add_purchases(self):
+        cm = CustomerManager()
+        name = "Alice"
+        purchases = [{'price': 50, 'item': 'banana'},{'price': 20, 'item': 'pear'},{'price': 10, 'item': 'avocado'}]
+        cm.add_purchases(name, purchases)
+
+        self.assertEqual(
+            {name: purchases},
+            cm.customers
+        )
     def test_add_purchase_multiple(self):
         cm = CustomerManager()
         name = "Alice"
